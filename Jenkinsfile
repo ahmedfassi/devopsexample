@@ -35,11 +35,11 @@ pipeline {
                     protocol: 'http',
                     nexusUrl: 'nexus:8081',
                     groupId: 'com.devopsexample',
-                    version: '1.0.0',
-                    repository: 'my-java-repo',
+                    version: "0.0.1-${env.BUILD_NUMBER}",
+                    repository: 'my-static-site',
                     credentialsId: 'nexus-creds',
                     artifacts: [
-                        [artifactId: 'devopsexample', classifier: '', file: 'target/devopsexample-1.0.0.jar', type: 'jar']
+                        [artifactId: 'devops', classifier: '', file: 'target/devops-0.0.1-SNAPSHOT.jar', type: 'jar']
                     ]
                 )
             }
