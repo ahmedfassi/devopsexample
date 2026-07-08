@@ -1,24 +1,48 @@
 pipeline {
-  agent any
-  
-  stages {
-    stage('Build') {
-      steps {
-        // Build the Docker image
-        sh 'docker build -t <your-dockerhub-username>/devops .'
-      }
+    agent any
+    tools {
+        maven 'Maven3'
     }
-    
-    stage('Push to DockerHub') {
-      steps {
-        // Authenticate with Docker Hub using credentials from Jenkins
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
-          sh '''
-            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
-            docker push <your-dockerhub-username>/devops
-          '''
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/ahmedfassi/devopsexample.git'
+            }
         }
-      }
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('MySonarQubeServer') {
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        stage('Upload to Nexus') {
+            steps {
+                nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: 'nexus:8081',
+                    groupId: 'com.devopsexample',
+                    version: "0.0.1-${env.BUILD_NUMBER}",
+                    repository: 'my-static-site',
+                    credentialsId: 'nexus-creds',
+                    artifacts: [
+                        [artifactId: 'devops', classifier: '', file: 'target/devops-0.0.1-SNAPSHOT.jar', type: 'jar']
+                    ]
+                )
+            }
+        }
     }
-  }
 }
