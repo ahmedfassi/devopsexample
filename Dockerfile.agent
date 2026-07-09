@@ -13,7 +13,12 @@ RUN apt-get update && apt-get install -y \
 # Install Maven
 RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 
-# Add jenkins user to the root group (GID 0), which owns the mounted docker.sock
+# Install kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && chmod +x kubectl \
+    && mv kubectl /usr/local/bin/
+
+# Add jenkins user to root group (for docker.sock access)
 RUN usermod -aG root jenkins
 
 USER jenkins

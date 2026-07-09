@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devopsexample-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devopsexample
+  template:
+    metadata:
+      labels:
+        app: devopsexample
+    spec:
+      containers:
+      - name: devopsexample
+        image: devopsexample:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
