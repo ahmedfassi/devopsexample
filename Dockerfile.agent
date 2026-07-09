@@ -13,4 +13,7 @@ RUN apt-get update && apt-get install -y \
 # Install Maven
 RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 
+# Add jenkins user to the root group (GID 0), which owns the mounted docker.sock
+RUN usermod -aG root jenkins
+
 USER jenkins
