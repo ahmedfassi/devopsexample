@@ -22,3 +22,7 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/s
 RUN usermod -aG root jenkins
 
 USER jenkins
+
+RUN curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
+    && chmod +x minikube \
+    && mv minikube /usr/local/bin/
